@@ -20,6 +20,7 @@ import com.adrian.response.AuthResponse;
 import com.adrian.repository.UserRepository;
 import com.adrian.request.LoginRequest;
 import com.adrian.services.CustomeUserDetailsImpl;
+import com.adrian.services.SubscriptionService;
 
 @RestController
 @RequestMapping("/auth")  // Mapea las rutas bajo /auth
@@ -33,6 +34,9 @@ public class AuthController {
 
     @Autowired
     private CustomeUserDetailsImpl customeUserDetails;  // Inyecta el servicio que carga detalles del usuario
+
+    @Autowired
+    private SubscriptionService subscriptionService;  // Inyecta el servicio de suscripción para manejar las suscripciones de los usuarios
 
     // Ruta para registrar un nuevo usuario
     @PostMapping("/signup")
@@ -50,6 +54,7 @@ public class AuthController {
         createdUser.setPassword(passwordEncoder.encode(user.getPassword()));  // La contraseña se encripta antes de guardar
 
         User savedUser = userRepository.save(createdUser);
+        subscriptionService.createSubscription(savedUser);  // Crea una suscripción para el nuevo usuario
 
         // Realiza una autenticación automática después de que el usuario se registre
         Authentication authentication = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
