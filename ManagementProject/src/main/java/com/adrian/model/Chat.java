@@ -3,7 +3,6 @@ package com.adrian.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.aspectj.bridge.Message;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

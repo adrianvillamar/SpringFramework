@@ -28,6 +28,9 @@ public class Comment {
     @ManyToOne
     private Issue issue; // Proyecto asociado al chat
 
+    @ManyToOne
+    private User user; // Usuario que creó el comentario
+
 
 
 }
