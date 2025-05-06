@@ -18,9 +18,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.adrian.model.Chat; // Modelo de Chat
+import com.adrian.model.Invitation;
 import com.adrian.model.Project; // Modelo de Proyecto
 import com.adrian.model.User; // Modelo de Usuario
+import com.adrian.request.InviteRequest;
 import com.adrian.response.MessageResponse; // Clase para respuestas con mensajes
+import com.adrian.services.InvitationService;
 import com.adrian.services.ProjectService; // Servicio para la lógica de negocio de proyectos
 import com.adrian.services.UserService; // Servicio para la lógica de negocio de usuarios
 
@@ -33,6 +36,9 @@ public class ProjectController {
 
     @Autowired
     private UserService userService; // Inyección automática del servicio de usuarios
+
+    @Autowired
+    private InvitationService invitationService; // Inyección automática del servicio de invitaciones
 
     // Obtener todos los proyectos, con filtros opcionales de categoría y etiqueta
     @GetMapping 
@@ -118,4 +124,31 @@ public class ProjectController {
         Chat chat = projectService.getChatByProjectId(projectId); // Obtiene el chat asociado al proyecto
         return new ResponseEntity<>(chat, HttpStatus.OK); // Devuelve el chat con estado 200 OK
     } 
+
+    @PostMapping("/invite") // Ruta para invitar a un usuario a un proyecto
+    public ResponseEntity<MessageResponse> inviteProject(
+        @RequestBody InviteRequest req, // Cuerpo de la solicitud con datos de invitación
+        @RequestHeader("Authorization") String jwt, // Encabezado con JWT
+        @RequestBody Project project // Cuerpo de la solicitud con datos del nuevo proyecto
+        ) throws Exception {
+        
+        User user = userService.findUserProfileByJwt(jwt); // Obtiene el usuario a partir del JWT
+        invitationService.sendInvitation(req.getEmail(), req.getProjectId()); // Envía la invitación al correo electrónico
+        MessageResponse res = new MessageResponse("Invitation sent successfully"); // Crea un mensaje de respuesta
+        return new ResponseEntity<>(res, HttpStatus.OK); // Devuelve el mensaje de éxito
+    }
+
+    @GetMapping("/accept_invitation") // Ruta para aceptar una invitación a un proyecto
+    public ResponseEntity<Invitation> acceptInviteProject(
+        @RequestParam String token, // Token de invitación recibido como parámetro
+        @RequestBody InviteRequest req, // Cuerpo de la solicitud con datos de invitación
+        @RequestHeader("Authorization") String jwt, // Encabezado con JWT
+        @RequestBody Project project // Cuerpo de la solicitud con datos del nuevo proyecto
+        ) throws Exception {
+        
+        User user = userService.findUserProfileByJwt(jwt); // Obtiene el usuario a partir del JWT
+        Invitation invitation = invitationService.acceptInvitation(token, user.getId()); // Acepta la invitación utilizando el token y el ID del usuario
+        projectService.addUserToProject(invitation.getProjectId(), user.getId()); // Agrega al usuario al proyecto
+        return new ResponseEntity<>(invitation, HttpStatus.ACCEPTED); // Devuelve el mensaje de éxito
+    }
 }
