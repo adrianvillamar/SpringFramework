@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -25,6 +26,8 @@ public class User {
     
     private String fullName;  // Nombre completo del usuario
     private String email;  // Correo electrónico del usuario
+    
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)  // Este campo solo se puede escribir, no se enviará en respuestas JSON
     private String password;  // Contraseña del usuario
     private int projectSize;  // Tamaño del proyecto asociado al usuario
 

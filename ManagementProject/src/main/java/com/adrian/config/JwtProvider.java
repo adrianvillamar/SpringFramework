@@ -28,6 +28,7 @@ public class JwtProvider {
 
     // Método que extrae el email del token JWT
     public static String getEmailFromToken(String jwt) {
+        jwt = jwt.substring(7); // Elimina el prefijo "Bearer " del token (si existe)
         // Parseo del token JWT para obtener los claims (información) del cuerpo del token
         Claims claims = Jwts.parserBuilder()
                 .setSigningKey(key) // Utiliza la misma clave secreta para verificar la firma
